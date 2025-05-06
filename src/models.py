@@ -1,8 +1,10 @@
+from eralchemy2 import render_er
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import String, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 
 db = SQLAlchemy()
+
 
 class User(db.Model):
     __tablename__ = 'user'
@@ -16,8 +18,10 @@ class User(db.Model):
     posts = relationship("Post", back_populates="user")
     comments = relationship("Comment", back_populates="user")
     likes = relationship("Like", back_populates="user")
-    followers = relationship("Follower", foreign_keys='Follower.user_id', back_populates="user")
-    following = relationship("Follower", foreign_keys='Follower.follower_id', back_populates="follower")
+    followers = relationship(
+        "Follower", foreign_keys='Follower.user_id', back_populates="user")
+    following = relationship(
+        "Follower", foreign_keys='Follower.follower_id', back_populates="follower")
 
     def serialize(self):
         return {
@@ -26,14 +30,17 @@ class User(db.Model):
             "email": self.email,
             "profile_picture": self.profile_picture
         }
-        
+
+
 class Post(db.Model):
     __tablename__ = 'post'
 
     id = db.Column(Integer, primary_key=True)  # Clave primaria
-    image_url = db.Column(String(250), nullable=False)  # URL de la imagen (obligatoria)
+    # URL de la imagen (obligatoria)
+    image_url = db.Column(String(250), nullable=False)
     caption = db.Column(String(250))  # Descripción o texto del post (opcional)
-    user_id = db.Column(Integer, db.ForeignKey('user.id'))  # Relación con el autor (usuario)
+    # Relación con el autor (usuario)
+    user_id = db.Column(Integer, db.ForeignKey('user.id'))
 
     # Relación inversa: este post pertenece a un usuario
     user = relationship("User", back_populates="posts")
@@ -50,13 +57,17 @@ class Post(db.Model):
             "user_id": self.user_id
         }
 
+
 class Comment(db.Model):
     __tablename__ = 'comment'
 
     id = db.Column(Integer, primary_key=True)  # Clave primaria
-    text = db.Column(String(250), nullable=False)  # Texto del comentario (obligatorio)
-    user_id = db.Column(Integer, db.ForeignKey('user.id'))  # Relación con el usuario que comenta
-    post_id = db.Column(Integer, db.ForeignKey('post.id'))  # Relación con el post sobre el que se comenta
+    # Texto del comentario (obligatorio)
+    text = db.Column(String(250), nullable=False)
+    # Relación con el usuario que comenta
+    user_id = db.Column(Integer, db.ForeignKey('user.id'))
+    # Relación con el post sobre el que se comenta
+    post_id = db.Column(Integer, db.ForeignKey('post.id'))
 
     # Relación inversa: el comentario pertenece a un usuario
     user = relationship("User", back_populates="comments")
@@ -77,7 +88,8 @@ class Like(db.Model):
 
     id = db.Column(Integer, primary_key=True)  # Clave primaria
     user_id = db.Column(Integer, db.ForeignKey('user.id'))  # Quién dio like
-    post_id = db.Column(Integer, db.ForeignKey('post.id'))  # A qué post le dio like
+    post_id = db.Column(Integer, db.ForeignKey(
+        'post.id'))  # A qué post le dio like
 
     # Relaciones inversas
     user = relationship("User", back_populates="likes")
@@ -103,8 +115,10 @@ class Follower(db.Model):
     follower_id = db.Column(Integer, db.ForeignKey('user.id'))
 
     # Relaciones inversas con alias para que no se confunda
-    user = relationship("User", foreign_keys=[user_id], back_populates="followers")
-    follower = relationship("User", foreign_keys=[follower_id], back_populates="following")
+    user = relationship("User", foreign_keys=[
+                        user_id], back_populates="followers")
+    follower = relationship("User", foreign_keys=[
+                            follower_id], back_populates="following")
 
     def serialize(self):
         return {
@@ -112,3 +126,6 @@ class Follower(db.Model):
             "user_id": self.user_id,  # A quién sigo
             "follower_id": self.follower_id  # Quién me sigue
         }
+
+
+render_er(db.Model, 'diagram.png')

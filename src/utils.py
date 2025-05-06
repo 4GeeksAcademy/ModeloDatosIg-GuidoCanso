@@ -30,7 +30,7 @@ def generate_sitemap(app):
             if "/admin/" not in url:
                 links.append(url)
 
-    links_html = "".join(["<li><a href='" + y + "'>" + y + "</a></li>" for y in links])
+    links_html = "".join(["<li><a href='" + y + "'>" + y + "</a></li>pipenv" for y in links])
     return """
         <div style="text-align: center;">
         <img style="max-height: 80px" src='https://storage.googleapis.com/breathecode/boilerplates/rigo-baby.jpeg' />
